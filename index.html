@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ค้นหาพนักงาน</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --panel: #ffffff;
+      --text: #152033;
+      --muted: #68758a;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e6f4f2;
+      --danger: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(820px, 100%);
+      margin: 0 auto;
+      padding: 20px 14px 42px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    .sub {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .search {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgb(21 32 51 / 8%);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    input {
+      width: 100%;
+      height: 58px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .tools {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 14px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button:active { background: var(--accent-soft); }
+
+    .status {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .result {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      min-height: 170px;
+      padding: 14px;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .not-found {
+      color: var(--danger);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .photo {
+      width: 150px;
+      aspect-ratio: 3 / 4;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      object-fit: cover;
+      background: #eef2f6;
+    }
+
+    .photo-missing {
+      width: 150px;
+      aspect-ratio: 3 / 4;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      padding: 10px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+      background: #f8fafc;
+    }
+
+    .name {
+      margin: 0 0 8px;
+      font-size: 26px;
+      line-height: 1.25;
+    }
+
+    .fields {
+      display: grid;
+      gap: 8px;
+      font-size: 17px;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    .field b {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .matches {
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .match {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+      text-align: left;
+    }
+
+    .match-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 900;
+    }
+
+    .match-name {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .print-tools {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .print-button {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    @media (max-width: 540px) {
+      h1 { font-size: 24px; }
+      input { font-size: 22px; }
+      .card {
+        grid-template-columns: 120px 1fr;
+        gap: 12px;
+      }
+      .photo,
+      .photo-missing { width: 120px; }
+      .name { font-size: 22px; }
+      .field { grid-template-columns: 82px 1fr; }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      main {
+        width: 100%;
+        padding: 0;
+      }
+
+      h1,
+      .sub,
+      .search,
+      .matches,
+      .print-tools {
+        display: none !important;
+      }
+
+      .result {
+        margin: 0;
+        min-height: auto;
+        border: 0;
+        padding: 0;
+      }
+
+      .card {
+        grid-template-columns: 48mm 1fr;
+        gap: 10mm;
+        align-items: start;
+      }
+
+      .photo,
+      .photo-missing {
+        width: 48mm;
+      }
+
+      .name {
+        font-size: 22pt;
+        margin-bottom: 8mm;
+      }
+
+      .fields {
+        gap: 4mm;
+        font-size: 15pt;
+      }
+
+      .field {
+        grid-template-columns: 32mm 1fr;
+      }
+
+      .field b {
+        font-size: 11pt;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>ค้นหาพนักงาน</h1>
+    <p class="sub">พิมพ์รหัส เช่น LV0005 แล้วจะแสดงชื่อ รูป วันที่เข้างาน และตำแหน่ง</p>
+
+    <section class="search">
+      <label for="codeInput">รหัสพนักงาน</label>
+      <input id="codeInput" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LV0005">
+      <div class="tools">
+        <button id="clearButton" type="button">ล้าง</button>
+        <span class="status" id="status">กำลังโหลดข้อมูล...</span>
+      </div>
+    </section>
+
+    <section class="result" id="result">
+      <div class="empty">กำลังโหลดไฟล์ data.xlsx</div>
+    </section>
+
+    <section class="matches" id="matches"></section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const DATA_FILE = "data.xlsx";
+    const IMAGE_FOLDER = "images";
+    const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
+
+    const input = document.querySelector("#codeInput");
+    const result = document.querySelector("#result");
+    const matches = document.querySelector("#matches");
+    const clearButton = document.querySelector("#clearButton");
+    const statusText = document.querySelector("#status");
+
+    let records = [];
+
+    function normalize(value) {
+      return String(value || "").trim().toUpperCase().replace(/\s+/g, "");
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return value.toLocaleDateString("th-TH", { year: "numeric", month: "2-digit", day: "2-digit" });
+      }
+      const text = String(value).trim();
+      const match = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+      return text;
+    }
+
+    function getCell(row, index) {
+      return row[index] == null ? "" : String(row[index]).trim();
+    }
+
+    function imageCandidates(code) {
+      return IMAGE_EXTENSIONS.map((ext) => `${IMAGE_FOLDER}/${code}.${ext}`);
+    }
+
+    function createPhoto(code) {
+      const wrapper = document.createElement("div");
+      const candidates = imageCandidates(code);
+      const img = document.createElement("img");
+      img.className = "photo";
+      img.alt = code;
+      let current = 0;
+
+      img.onerror = () => {
+        current += 1;
+        if (current < candidates.length) {
+          img.src = candidates[current];
+          return;
+        }
+        wrapper.innerHTML = `<div class="photo-missing">ไม่มีรูป<br>${code}</div>`;
+      };
+
+      img.src = candidates[current];
+      wrapper.appendChild(img);
+      return wrapper;
+    }
+
+    function showEmpty(message) {
+      result.innerHTML = `<div class="empty">${message}</div>`;
+    }
+
+    function showRecord(record) {
+      result.innerHTML = "";
+      const card = document.createElement("div");
+      card.className = "card";
+      card.appendChild(createPhoto(record.code));
+
+      const info = document.createElement("div");
+      info.innerHTML = `
+        <h2 class="name">${record.name || "-"}</h2>
+        <div class="fields">
+          <div class="field"><b>รหัส</b><span>${record.code}</span></div>
+          <div class="field"><b>ชื่อจีน</b><span>${record.chineseName || "-"}</span></div>
+          <div class="field"><b>เข้างาน</b><span>${record.startDate || "-"}</span></div>
+          <div class="field"><b>ตำแหน่ง</b><span>${record.position || "-"}</span></div>
+          <div class="field"><b>แผนก</b><span>${record.department || "-"}</span></div>
+        </div>
+        <div class="print-tools">
+          <button class="print-button" type="button" id="printButton">พิมพ์ A4 / บันทึก PDF</button>
+        </div>
+      `;
+      card.appendChild(info);
+      result.appendChild(card);
+
+      document.querySelector("#printButton").addEventListener("click", () => {
+        window.print();
+      });
+    }
+
+    function showNotFound(code) {
+      result.innerHTML = `<div class="not-found">ไม่พบรหัส ${code}</div>`;
+    }
+
+    function renderMatches(items) {
+      matches.innerHTML = "";
+      if (!items.length) return;
+
+      for (const item of items.slice(0, 8)) {
+        const button = document.createElement("button");
+        button.className = "match";
+        button.type = "button";
+        button.innerHTML = `
+          <div class="match-top"><span>${item.code}</span><span>${item.position || ""}</span></div>
+          <div class="match-name">${item.name || "-"} ${item.chineseName ? `(${item.chineseName})` : ""}</div>
+        `;
+        button.addEventListener("click", () => {
+          input.value = item.code;
+          showRecord(item);
+          matches.innerHTML = "";
+          input.focus();
+        });
+        matches.appendChild(button);
+      }
+    }
+
+    function search() {
+      const query = normalize(input.value);
+      if (!records.length) {
+        showEmpty("ยังโหลดข้อมูลไม่เสร็จ");
+        return;
+      }
+      if (!query) {
+        showEmpty("เริ่มพิมพ์รหัสในช่องด้านบนได้เลย");
+        matches.innerHTML = "";
+        return;
+      }
+
+      const exact = records.find((record) => normalize(record.code) === query);
+      if (exact) {
+        showRecord(exact);
+        matches.innerHTML = "";
+        return;
+      }
+
+      const partial = records.filter((record) => normalize(record.code).includes(query));
+      if (partial.length) {
+        showEmpty("ยังไม่ตรงแบบเต็ม เลือกรหัสที่ใกล้เคียงด้านล่างได้");
+        renderMatches(partial);
+        return;
+      }
+
+      showNotFound(input.value.trim().toUpperCase());
+      matches.innerHTML = "";
+    }
+
+    async function loadData() {
+      try {
+        const response = await fetch(`${DATA_FILE}?v=${Date.now()}`);
+        if (!response.ok) throw new Error(`โหลด ${DATA_FILE} ไม่ได้`);
+        const buffer = await response.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
+        const sheet = workbook.Sheets["Emp. List"] || workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: "" });
+
+        records = rows.slice(1).map((row) => ({
+          oldCode: getCell(row, 0),
+          seq: getCell(row, 1),
+          department: getCell(row, 2),
+          code: getCell(row, 3),
+          name: getCell(row, 4),
+          chineseName: getCell(row, 5),
+          status: getCell(row, 7),
+          startDate: formatDate(getCell(row, 8)),
+          position: getCell(row, 14),
+        })).filter((record) => record.code);
+
+        statusText.textContent = `โหลดแล้ว ${records.length} รายการ`;
+        showEmpty("เริ่มพิมพ์รหัสในช่องด้านบนได้เลย");
+        search();
+      } catch (error) {
+        statusText.textContent = "โหลดข้อมูลไม่สำเร็จ";
+        showEmpty("ไม่พบไฟล์ data.xlsx หรือเปิดจากเครื่องโดยตรงไม่ได้ ให้อัปขึ้น GitHub Pages พร้อมไฟล์ data.xlsx");
+      }
+    }
+
+    input.addEventListener("input", search);
+    clearButton.addEventListener("click", () => {
+      input.value = "";
+      search();
+      input.focus();
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
