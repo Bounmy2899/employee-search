@@ -3,198 +3,573 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ค้นหาพนักงาน</title>
+  <title>HOLLY Manufacturing — ระบบค้นหาพนักงาน</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
+    /* ===== HOLLY BRAND PALETTE =====
+       Primary Gold:  #F5A623   (โลโก้ตัว HOLLY)
+       Gold Dark:     #D8901A
+       Gold Light:    #FFC857
+       Gray Brand:    #A0A0A0   (โลโก้สีเทา)
+       Gray Dark:     #6B6B6B
+       Dark Navy:     #1A2332   (พื้นหลังหลัก)
+       Off-White:     #FAFAF8
+    */
     :root {
-      --bg: #f5f7fa;
-      --panel: #ffffff;
-      --text: #152033;
-      --muted: #68758a;
-      --line: #d9e0ea;
-      --accent: #0f766e;
-      --accent-soft: #e6f4f2;
-      --danger: #b42318;
+      --gold: #F5A623;
+      --gold-dark: #D8901A;
+      --gold-light: #FFC857;
+      --gold-soft: rgba(245, 166, 35, 0.12);
+      --gray: #A0A0A0;
+      --gray-dark: #6B6B6B;
+      --gray-light: #E8E8E8;
+      --dark: #1A2332;
+      --darker: #0F1722;
+      --text: #1A2332;
+      --text-light: #ffffff;
+      --muted: #6B7280;
+      --muted-light: rgba(255, 255, 255, 0.78);
+      --bg: #FAFAF8;
+      --glass: rgba(255, 255, 255, 0.88);
+      --glass-strong: rgba(255, 255, 255, 0.96);
+      --glass-dark: rgba(15, 23, 34, 0.88);
+      --line: rgba(255, 255, 255, 0.5);
+      --line-dark: rgba(15, 23, 34, 0.08);
+      --danger: #B42318;
+      --success: #16A34A;
+      --shadow-sm: 0 4px 12px rgba(15, 23, 34, 0.08);
+      --shadow-md: 0 12px 32px rgba(15, 23, 34, 0.15);
+      --shadow-lg: 0 24px 60px rgba(15, 23, 34, 0.25);
+      --shadow-gold: 0 8px 24px rgba(245, 166, 35, 0.35);
+      --radius: 14px;
+      --radius-lg: 20px;
     }
 
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
       min-height: 100vh;
-      background: var(--bg);
+      font-family: "Sarabun", "Inter", system-ui, -apple-system, sans-serif;
       color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
+    body {
+      background:
+        linear-gradient(135deg, rgba(26, 35, 50, 0.78) 0%, rgba(26, 35, 50, 0.55) 40%, rgba(216, 144, 26, 0.35) 100%),
+        url("images/bg.jpg") center/cover no-repeat,
+        linear-gradient(135deg, #1A2332 0%, #2C3E50 60%, #3A2F1A 100%);
+      background-attachment: fixed, fixed, fixed;
+      background-size: cover, cover, cover;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Pattern หลังเบาๆ */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(245, 166, 35, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(160, 160, 160, 0.08) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Decoration shapes */
+    body::after {
+      content: "";
+      position: fixed;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(245, 166, 35, 0.15) 0%, transparent 60%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== TOPBAR ===== */
+    .topbar {
+      position: relative;
+      z-index: 5;
+      background: var(--glass-dark);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid rgba(245, 166, 35, 0.25);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-light);
+    }
+
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+
+    .brand-text { line-height: 1.2; }
+    .brand-name {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      color: var(--gold);
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted-light);
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted-light);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.25);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.9); }
+    }
+
+    /* ===== MAIN ===== */
     main {
-      width: min(820px, 100%);
+      position: relative;
+      z-index: 2;
+      width: min(920px, 100%);
       margin: 0 auto;
-      padding: 20px 14px 42px;
+      padding: 32px 18px 60px;
+    }
+
+    .hero {
+      text-align: center;
+      color: var(--text-light);
+      margin-bottom: 28px;
+    }
+
+    .hero-logo {
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 16px;
+      filter: drop-shadow(0 8px 20px rgba(245, 166, 35, 0.4));
     }
 
     h1 {
-      margin: 0 0 6px;
-      font-size: 28px;
-      line-height: 1.2;
+      margin: 0 0 8px;
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    h1 .highlight {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .sub {
-      margin: 0 0 16px;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.45;
+      margin: 0;
+      color: var(--muted-light);
+      font-size: 16px;
+      font-weight: 500;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
     }
 
+    /* ===== SEARCH CARD ===== */
     .search {
-      background: var(--panel);
+      background: var(--glass-strong);
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-      box-shadow: 0 8px 24px rgb(21 32 51 / 8%);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* แถบเหลืองด้านบน card */
+    .search::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
     }
 
     label {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--muted);
-      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: var(--text);
+      font-size: 13px;
       font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    label::before {
+      content: "";
+      width: 5px; height: 20px;
+      background: linear-gradient(180deg, var(--gold), var(--gold-dark));
+      border-radius: 3px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap svg.search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px; height: 24px;
+      color: var(--gold);
+      pointer-events: none;
     }
 
     input {
       width: 100%;
-      height: 58px;
-      border: 2px solid var(--line);
-      border-radius: 8px;
-      padding: 0 14px;
-      font-size: 25px;
+      height: 68px;
+      border: 2px solid var(--line-dark);
+      border-radius: var(--radius);
+      padding: 0 60px 0 56px;
+      font-family: inherit;
+      font-size: 26px;
       font-weight: 900;
-      letter-spacing: 0;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
       outline: none;
-      background: #fff;
+      background: #ffffff;
       color: var(--text);
+      transition: all 200ms ease;
+    }
+
+    input::placeholder {
+      color: #C1CAD6;
+      font-weight: 700;
     }
 
     input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px var(--accent-soft);
+      border-color: var(--gold);
+      background: #FFFDF6;
+      box-shadow: 0 0 0 5px var(--gold-soft);
     }
 
     .tools {
-      margin-top: 12px;
+      margin-top: 16px;
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
       align-items: center;
     }
 
-    button {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 11px 14px;
-      background: #fff;
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1.5px solid var(--line-dark);
+      border-radius: var(--radius);
+      padding: 13px 22px;
+      background: #ffffff;
       color: var(--text);
-      font: inherit;
-      font-weight: 800;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
       cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 180ms ease;
     }
 
-    button:active { background: var(--accent-soft); }
+    .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--gold);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+      color: #ffffff;
+      border-color: var(--gold-dark);
+      box-shadow: var(--shadow-gold);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 12px 32px rgba(245, 166, 35, 0.5);
+      border-color: var(--gold-dark);
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+    }
+
+    .btn-dark {
+      background: linear-gradient(135deg, var(--dark), var(--darker));
+      color: var(--text-light);
+      border-color: var(--darker);
+      box-shadow: 0 8px 20px rgba(15, 23, 34, 0.35);
+    }
+
+    .btn-dark:hover {
+      box-shadow: 0 12px 28px rgba(15, 23, 34, 0.5);
+      border-color: var(--gold);
+    }
 
     .status {
+      margin-left: auto;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--gold-soft);
+      border-radius: 20px;
     }
 
+    .status::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    /* ===== RESULT CARD ===== */
     .result {
-      margin-top: 14px;
+      margin-top: 18px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      min-height: 170px;
-      padding: 14px;
+      border-radius: var(--radius-lg);
+      background: var(--glass-strong);
+      min-height: 240px;
+      padding: 28px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gray), var(--gold), var(--gray));
     }
 
     .empty {
       color: var(--muted);
       font-size: 16px;
-      line-height: 1.5;
+      line-height: 1.6;
+      text-align: center;
+      padding: 40px 20px;
+      font-weight: 500;
+    }
+
+    .empty-icon {
+      font-size: 56px;
+      margin-bottom: 14px;
+      opacity: 0.35;
     }
 
     .not-found {
       color: var(--danger);
       font-size: 18px;
-      font-weight: 900;
+      font-weight: 800;
+      text-align: center;
+      padding: 32px 20px;
+      background: rgba(180, 35, 24, 0.06);
+      border-radius: var(--radius);
+      border: 2px dashed rgba(180, 35, 24, 0.3);
     }
 
     .card {
       display: grid;
-      grid-template-columns: 150px 1fr;
-      gap: 16px;
+      grid-template-columns: 190px 1fr;
+      gap: 26px;
       align-items: start;
     }
 
+    .photo-frame {
+      position: relative;
+    }
+
     .photo {
-      width: 150px;
+      width: 190px;
       aspect-ratio: 3 / 4;
-      border: 1px solid var(--line);
-      border-radius: 8px;
+      border: 4px solid #ffffff;
+      border-radius: var(--radius);
       object-fit: cover;
       background: #eef2f6;
+      box-shadow: 0 12px 28px rgba(15, 23, 34, 0.25);
     }
 
     .photo-missing {
-      width: 150px;
+      width: 190px;
       aspect-ratio: 3 / 4;
-      border: 1px dashed var(--line);
-      border-radius: 8px;
+      border: 2px dashed rgba(15, 23, 34, 0.2);
+      border-radius: var(--radius);
       display: grid;
       place-items: center;
-      padding: 10px;
+      padding: 12px;
       color: var(--muted);
       text-align: center;
       font-size: 14px;
-      background: #f8fafc;
+      font-weight: 600;
+      background: #F8FAFC;
+    }
+
+    .badge {
+      position: absolute;
+      top: -10px; right: -10px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: #ffffff;
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: var(--shadow-gold);
     }
 
     .name {
-      margin: 0 0 8px;
-      font-size: 26px;
-      line-height: 1.25;
+      margin: 0 0 4px;
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    .name-sub {
+      color: var(--gray-dark);
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--gold-soft);
     }
 
     .fields {
       display: grid;
-      gap: 8px;
-      font-size: 17px;
+      gap: 10px;
     }
 
     .field {
       display: grid;
       grid-template-columns: 110px 1fr;
-      gap: 8px;
-      align-items: baseline;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(248, 250, 252, 0.6));
+      border-radius: 10px;
+      border-left: 4px solid var(--gold);
+      transition: all 160ms ease;
+    }
+
+    .field:hover {
+      background: linear-gradient(135deg, var(--gold-soft), rgba(248, 250, 252, 0.6));
+      transform: translateX(2px);
     }
 
     .field b {
-      color: var(--muted);
-      font-size: 14px;
+      color: var(--gray-dark);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .field span {
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
     }
 
     .matches {
-      margin-top: 14px;
+      margin-top: 18px;
       display: grid;
       gap: 8px;
+    }
+
+    .matches-title {
+      color: var(--text-light);
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .matches-title::before {
+      content: "";
+      width: 4px; height: 16px;
+      background: var(--gold);
+      border-radius: 2px;
     }
 
     .match {
       width: 100%;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      background: #fff;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      background: var(--glass);
       text-align: left;
+      cursor: pointer;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: all 160ms ease;
+      font-family: inherit;
+    }
+
+    .match:hover {
+      transform: translateX(4px);
+      background: var(--glass-strong);
+      border-color: var(--gold);
+      box-shadow: var(--shadow-md);
     }
 
     .match-top {
@@ -202,121 +577,182 @@
       justify-content: space-between;
       gap: 12px;
       font-weight: 900;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .match-top span:first-child {
+      color: var(--gold-dark);
+    }
+
+    .match-top span:last-child {
+      color: var(--gray-dark);
+      font-size: 13px;
+      font-weight: 700;
     }
 
     .match-name {
       margin-top: 4px;
       color: var(--muted);
       font-size: 14px;
+      font-weight: 500;
     }
 
     .print-tools {
-      margin-top: 16px;
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 2px dashed var(--gold-soft);
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
-    .print-button {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
+    .footer {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 24px 18px;
+      color: var(--muted-light);
+      font-size: 13px;
+      font-weight: 500;
     }
 
-    @media (max-width: 540px) {
-      h1 { font-size: 24px; }
-      input { font-size: 22px; }
-      .card {
-        grid-template-columns: 120px 1fr;
-        gap: 12px;
-      }
-      .photo,
-      .photo-missing { width: 120px; }
+    .footer b { color: var(--gold); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      .topbar { padding: 12px 16px; }
+      .brand-sub { display: none; }
+      .brand-logo { width: 40px; height: 40px; }
+      .brand-name { font-size: 17px; }
+      .hero-logo { width: 64px; height: 64px; }
+      h1 { font-size: 26px; }
+      .sub { font-size: 14px; }
+      input { font-size: 20px; height: 58px; padding: 0 16px 0 48px; }
+      .input-wrap svg.search-icon { left: 14px; width: 20px; height: 20px; }
+      .search, .result { padding: 18px; }
+      .card { grid-template-columns: 130px 1fr; gap: 16px; }
+      .photo, .photo-missing { width: 130px; }
       .name { font-size: 22px; }
-      .field { grid-template-columns: 82px 1fr; }
+      .name-sub { font-size: 14px; }
+      .field { grid-template-columns: 80px 1fr; padding: 10px 12px; }
+      .field span { font-size: 14px; }
+      .btn { padding: 11px 16px; font-size: 14px; }
+      .status { margin-left: 0; }
     }
 
+    /* ===== PRINT ===== */
     @media print {
-      @page {
-        size: A4;
-        margin: 14mm;
-      }
-
+      @page { size: A4; margin: 14mm; }
       body {
-        background: #fff;
+        background: #fff !important;
       }
-
-      main {
-        width: 100%;
-        padding: 0;
-      }
-
-      h1,
-      .sub,
-      .search,
-      .matches,
-      .print-tools {
-        display: none !important;
-      }
-
+      body::before, body::after { display: none; }
+      .topbar, .hero, .search, .matches, .print-tools, .status, .footer { display: none !important; }
+      main { width: 100%; padding: 0; }
       .result {
         margin: 0;
         min-height: auto;
         border: 0;
         padding: 0;
+        background: #fff;
+        box-shadow: none;
+        backdrop-filter: none;
       }
-
-      .card {
-        grid-template-columns: 48mm 1fr;
-        gap: 10mm;
-        align-items: start;
-      }
-
-      .photo,
-      .photo-missing {
-        width: 48mm;
-      }
-
-      .name {
-        font-size: 22pt;
-        margin-bottom: 8mm;
-      }
-
-      .fields {
-        gap: 4mm;
-        font-size: 15pt;
-      }
-
+      .result::before { display: none; }
+      .card { grid-template-columns: 48mm 1fr; gap: 10mm; }
+      .photo, .photo-missing { width: 48mm; border-width: 2px; }
+      .name { font-size: 22pt; }
+      .name-sub { font-size: 14pt; border-bottom-color: #D8901A; }
+      .fields { gap: 4mm; }
       .field {
         grid-template-columns: 32mm 1fr;
+        background: #F8FAFC;
+        border-left-color: #D8901A;
       }
-
-      .field b {
-        font-size: 11pt;
-      }
+      .field b { font-size: 10pt; }
+      .field span { font-size: 13pt; }
+      .badge { display: none; }
     }
   </style>
 </head>
 <body>
+  <!-- ===== HOLLY LOGO SVG TEMPLATE ===== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="holly-logo" viewBox="0 0 100 100">
+        <!-- โลโก้วงกลม HOLLY: ส่วนเหลืองด้านบน -->
+        <path d="M 50 8 A 42 42 0 0 1 92 50 L 92 50 Q 75 38 50 38 Q 25 38 8 50 A 42 42 0 0 1 50 8 Z"
+              fill="#F5A623"/>
+        <path d="M 18 28 Q 35 22 50 28 Q 65 32 80 28 L 78 36 Q 60 30 50 32 Q 38 34 22 38 Z"
+              fill="#FFC857" opacity="0.7"/>
+        <!-- ส่วนเทาด้านล่าง -->
+        <path d="M 8 50 A 42 42 0 0 0 50 92 A 42 42 0 0 0 92 50 Q 75 62 50 62 Q 25 62 8 50 Z"
+              fill="#A0A0A0"/>
+        <path d="M 18 72 Q 35 78 50 72 Q 65 68 80 72 L 78 64 Q 60 70 50 68 Q 38 66 22 62 Z"
+              fill="#C0C0C0" opacity="0.6"/>
+        <!-- เส้นกลาง -->
+        <ellipse cx="50" cy="50" rx="42" ry="2" fill="#ffffff" opacity="0.85"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-logo"><use href="#holly-logo"/></svg>
+      <div class="brand-text">
+        <div class="brand-name">HOLLY</div>
+        <div class="brand-sub">Manufacturing S.E.A. Co., Ltd.</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="status-dot"></span>
+      <span>ระบบพร้อมใช้งาน</span>
+    </div>
+  </header>
+
   <main>
-    <h1>ค้นหาพนักงาน</h1>
-    <p class="sub">พิมพ์รหัส เช่น LV0005 แล้วจะแสดงชื่อ รูป วันที่เข้างาน และตำแหน่ง</p>
+    <div class="hero">
+      <svg class="hero-logo"><use href="#holly-logo"/></svg>
+      <h1>ระบบ<span class="highlight">ค้นหาพนักงาน</span></h1>
+      <p class="sub">พิมพ์รหัสพนักงาน (เช่น LV0005) เพื่อแสดงข้อมูลและรูปภาพ</p>
+    </div>
 
     <section class="search">
-      <label for="codeInput">รหัสพนักงาน</label>
-      <input id="codeInput" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LV0005">
+      <label for="codeInput">รหัสพนักงาน / Employee ID</label>
+      <div class="input-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input id="codeInput" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LV0005">
+      </div>
       <div class="tools">
-        <button id="clearButton" type="button">ล้าง</button>
+        <button id="focusButton" class="btn btn-primary" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          ค้นหา
+        </button>
+        <button id="clearButton" class="btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          ล้างข้อมูล
+        </button>
         <span class="status" id="status">กำลังโหลดข้อมูล...</span>
       </div>
     </section>
 
     <section class="result" id="result">
-      <div class="empty">กำลังโหลดไฟล์ data.xlsx</div>
+      <div class="empty">
+        <div class="empty-icon">📋</div>
+        <div>กำลังโหลดไฟล์ data.xlsx</div>
+      </div>
     </section>
 
     <section class="matches" id="matches"></section>
   </main>
+
+  <footer class="footer">
+    © <b>HOLLY Manufacturing S.E.A. Co., Ltd.</b> · Employee Search System
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
@@ -328,6 +764,7 @@
     const result = document.querySelector("#result");
     const matches = document.querySelector("#matches");
     const clearButton = document.querySelector("#clearButton");
+    const focusButton = document.querySelector("#focusButton");
     const statusText = document.querySelector("#status");
 
     let records = [];
@@ -357,6 +794,7 @@
 
     function createPhoto(code) {
       const wrapper = document.createElement("div");
+      wrapper.className = "photo-frame";
       const candidates = imageCandidates(code);
       const img = document.createElement("img");
       img.className = "photo";
@@ -369,16 +807,26 @@
           img.src = candidates[current];
           return;
         }
-        wrapper.innerHTML = `<div class="photo-missing">ไม่มีรูป<br>${code}</div>`;
+        wrapper.innerHTML = `<div class="photo-missing">📷<br>ไม่มีรูป<br>${code}</div>`;
+        const b = document.createElement("div");
+        b.className = "badge";
+        b.textContent = "พนักงาน";
+        wrapper.appendChild(b);
       };
 
       img.src = candidates[current];
       wrapper.appendChild(img);
+
+      const badge = document.createElement("div");
+      badge.className = "badge";
+      badge.textContent = "พนักงาน";
+      wrapper.appendChild(badge);
+
       return wrapper;
     }
 
-    function showEmpty(message) {
-      result.innerHTML = `<div class="empty">${message}</div>`;
+    function showEmpty(message, icon = "🔍") {
+      result.innerHTML = `<div class="empty"><div class="empty-icon">${icon}</div><div>${message}</div></div>`;
     }
 
     function showRecord(record) {
@@ -390,15 +838,18 @@
       const info = document.createElement("div");
       info.innerHTML = `
         <h2 class="name">${record.name || "-"}</h2>
+        <div class="name-sub">${record.chineseName || "&nbsp;"}</div>
         <div class="fields">
           <div class="field"><b>รหัส</b><span>${record.code}</span></div>
-          <div class="field"><b>ชื่อจีน</b><span>${record.chineseName || "-"}</span></div>
           <div class="field"><b>เข้างาน</b><span>${record.startDate || "-"}</span></div>
           <div class="field"><b>ตำแหน่ง</b><span>${record.position || "-"}</span></div>
           <div class="field"><b>แผนก</b><span>${record.department || "-"}</span></div>
         </div>
         <div class="print-tools">
-          <button class="print-button" type="button" id="printButton">พิมพ์ A4 / บันทึก PDF</button>
+          <button class="btn btn-dark" type="button" id="printButton">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            พิมพ์ A4 / บันทึก PDF
+          </button>
         </div>
       `;
       card.appendChild(info);
@@ -410,12 +861,17 @@
     }
 
     function showNotFound(code) {
-      result.innerHTML = `<div class="not-found">ไม่พบรหัส ${code}</div>`;
+      result.innerHTML = `<div class="not-found">⚠️ ไม่พบรหัส ${code}</div>`;
     }
 
     function renderMatches(items) {
       matches.innerHTML = "";
       if (!items.length) return;
+
+      const title = document.createElement("div");
+      title.className = "matches-title";
+      title.textContent = `พบ ${items.length} รายการที่ใกล้เคียง`;
+      matches.appendChild(title);
 
       for (const item of items.slice(0, 8)) {
         const button = document.createElement("button");
@@ -438,11 +894,11 @@
     function search() {
       const query = normalize(input.value);
       if (!records.length) {
-        showEmpty("ยังโหลดข้อมูลไม่เสร็จ");
+        showEmpty("ยังโหลดข้อมูลไม่เสร็จ", "⏳");
         return;
       }
       if (!query) {
-        showEmpty("เริ่มพิมพ์รหัสในช่องด้านบนได้เลย");
+        showEmpty("เริ่มพิมพ์รหัสในช่องด้านบนได้เลย", "🔍");
         matches.innerHTML = "";
         return;
       }
@@ -456,7 +912,7 @@
 
       const partial = records.filter((record) => normalize(record.code).includes(query));
       if (partial.length) {
-        showEmpty("ยังไม่ตรงแบบเต็ม เลือกรหัสที่ใกล้เคียงด้านล่างได้");
+        showEmpty("ยังไม่ตรงแบบเต็ม เลือกรหัสที่ใกล้เคียงด้านล่าง", "💡");
         renderMatches(partial);
         return;
       }
@@ -465,41 +921,150 @@
       matches.innerHTML = "";
     }
 
-    async function loadData() {
+    // ===== CACHE SYSTEM (เก็บข้อมูลลงเครื่อง เปิดครั้งต่อไปไม่ต้องโหลดใหม่) =====
+    const CACHE_KEY = "holly_employee_records_v1";
+    const CACHE_META = "holly_employee_meta_v1";
+    const CACHE_TTL = 1000 * 60 * 60 * 24 * 7; // 7 วัน
+
+    function loadFromCache() {
       try {
-        const response = await fetch(`${DATA_FILE}?v=${Date.now()}`);
-        if (!response.ok) throw new Error(`โหลด ${DATA_FILE} ไม่ได้`);
-        const buffer = await response.arrayBuffer();
-        const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
-        const sheet = workbook.Sheets["Emp. List"] || workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: "" });
-
-        records = rows.slice(1).map((row) => ({
-          oldCode: getCell(row, 0),
-          seq: getCell(row, 1),
-          department: getCell(row, 2),
-          code: getCell(row, 3),
-          name: getCell(row, 4),
-          chineseName: getCell(row, 5),
-          status: getCell(row, 7),
-          startDate: formatDate(getCell(row, 8)),
-          position: getCell(row, 14),
-        })).filter((record) => record.code);
-
-        statusText.textContent = `โหลดแล้ว ${records.length} รายการ`;
-        showEmpty("เริ่มพิมพ์รหัสในช่องด้านบนได้เลย");
-        search();
-      } catch (error) {
-        statusText.textContent = "โหลดข้อมูลไม่สำเร็จ";
-        showEmpty("ไม่พบไฟล์ data.xlsx หรือเปิดจากเครื่องโดยตรงไม่ได้ ให้อัปขึ้น GitHub Pages พร้อมไฟล์ data.xlsx");
+        const meta = JSON.parse(localStorage.getItem(CACHE_META) || "null");
+        if (!meta || !meta.savedAt) return null;
+        if (Date.now() - meta.savedAt > CACHE_TTL) return null;
+        const data = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+        if (!Array.isArray(data) || !data.length) return null;
+        return { data, savedAt: meta.savedAt };
+      } catch (e) {
+        return null;
       }
     }
 
+    function saveToCache(data) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        localStorage.setItem(CACHE_META, JSON.stringify({ savedAt: Date.now() }));
+      } catch (e) {
+        // localStorage เต็ม - ข้ามไป
+        console.warn("Cache save failed:", e);
+      }
+    }
+
+    function parseRows(rows) {
+      return rows.slice(1).map((row) => ({
+        oldCode: getCell(row, 0),
+        seq: getCell(row, 1),
+        department: getCell(row, 2),
+        code: getCell(row, 3),
+        name: getCell(row, 4),
+        chineseName: getCell(row, 5),
+        status: getCell(row, 7),
+        startDate: formatDate(getCell(row, 8)),
+        position: getCell(row, 14),
+      })).filter((record) => record.code);
+    }
+
+    async function fetchWithProgress(url, onProgress) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`โหลดไม่ได้ (${response.status})`);
+      const total = Number(response.headers.get("content-length")) || 0;
+      const reader = response.body.getReader();
+      const chunks = [];
+      let loaded = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        loaded += value.length;
+        if (onProgress) onProgress(loaded, total);
+      }
+      const buffer = new Uint8Array(loaded);
+      let pos = 0;
+      for (const chunk of chunks) {
+        buffer.set(chunk, pos);
+        pos += chunk.length;
+      }
+      return buffer.buffer;
+    }
+
+    async function loadFresh() {
+      const buffer = await fetchWithProgress(`${DATA_FILE}?v=${Date.now()}`, (loaded, total) => {
+        const mb = (loaded / 1024 / 1024).toFixed(1);
+        const totalMb = total ? (total / 1024 / 1024).toFixed(1) : "?";
+        const pct = total ? Math.round((loaded / total) * 100) : 0;
+        statusText.textContent = `โหลดข้อมูล ${mb}/${totalMb} MB (${pct}%)`;
+        showEmpty(`กำลังโหลดข้อมูลครั้งแรก... ${pct}%<br><small style="opacity:.6">ครั้งต่อไปจะเปิดได้ทันที</small>`, "⬇️");
+      });
+      const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
+      const sheet = workbook.Sheets["Emp. List"] || workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: "" });
+      return parseRows(rows);
+    }
+
+    async function loadData() {
+      // 1. ลองโหลดจาก cache ก่อน (เร็วทันที!)
+      const cached = loadFromCache();
+      if (cached) {
+        records = cached.data;
+        const ageHours = Math.round((Date.now() - cached.savedAt) / (1000 * 60 * 60));
+        statusText.textContent = `พร้อมใช้งาน ${records.length.toLocaleString()} รายการ (cache)`;
+        showEmpty("เริ่มพิมพ์รหัสในช่องด้านบนได้เลย", "🔍");
+        search();
+        // โหลดข้อมูลใหม่เบื้องหลัง (background refresh)
+        refreshInBackground();
+        return;
+      }
+
+      // 2. ถ้าไม่มี cache ค่อยโหลดจากเซิร์ฟเวอร์
+      try {
+        records = await loadFresh();
+        saveToCache(records);
+        statusText.textContent = `โหลดแล้ว ${records.length.toLocaleString()} รายการ`;
+        showEmpty("เริ่มพิมพ์รหัสในช่องด้านบนได้เลย", "🔍");
+        search();
+      } catch (error) {
+        statusText.textContent = "โหลดข้อมูลไม่สำเร็จ";
+        showEmpty("ไม่พบไฟล์ data.xlsx — กรุณาอัปขึ้น GitHub Pages พร้อมไฟล์ data.xlsx", "⚠️");
+      }
+    }
+
+    async function refreshInBackground() {
+      try {
+        const fresh = await loadFresh();
+        if (fresh && fresh.length) {
+          records = fresh;
+          saveToCache(fresh);
+          statusText.textContent = `พร้อมใช้งาน ${records.length.toLocaleString()} รายการ`;
+        }
+      } catch (e) {
+        // ใช้ข้อมูลเก่าจาก cache ต่อไปได้
+      }
+    }
+
+    function clearCache() {
+      localStorage.removeItem(CACHE_KEY);
+      localStorage.removeItem(CACHE_META);
+      statusText.textContent = "ล้าง cache แล้ว กำลังโหลดใหม่...";
+      records = [];
+      loadData();
+    }
+
     input.addEventListener("input", search);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") search();
+    });
     clearButton.addEventListener("click", () => {
       input.value = "";
       search();
       input.focus();
+    });
+    focusButton.addEventListener("click", () => {
+      input.focus();
+      search();
+    });
+
+    // ดับเบิ้ลคลิกที่ status เพื่อล้าง cache (สำหรับ admin)
+    statusText.addEventListener("dblclick", () => {
+      if (confirm("ล้าง cache และโหลดข้อมูลใหม่?")) clearCache();
     });
 
     loadData();
