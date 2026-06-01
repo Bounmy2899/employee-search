@@ -641,7 +641,116 @@
       .status { margin-left: 0; }
     }
 
-    /* ===== PRINT ===== */
+    /* ===== EMPLOYEE BADGE (บัตรพนักงานเล็ก แบบ LV1552.pdf) ===== */
+    .id-badge {
+      display: none;
+      width: 60mm;
+      background: #ffffff;
+      border: 2px solid #1e40af;
+      padding: 0;
+      font-family: "Sarabun", sans-serif;
+      color: #000;
+    }
+
+    .id-badge .id-header {
+      background: #ffffff;
+      padding: 6px 8px 4px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .id-badge .id-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .id-badge .id-logo-mark {
+      width: 22px;
+      height: 22px;
+    }
+
+    .id-badge .id-logo-text {
+      font-size: 14pt;
+      font-weight: 900;
+      color: #F5A623;
+      letter-spacing: 0.5px;
+    }
+
+    .id-badge .id-tagline {
+      font-size: 8pt;
+      color: #333;
+      margin-top: 2px;
+      line-height: 1.2;
+    }
+
+    .id-badge .id-photo-wrap {
+      position: relative;
+      padding: 8px;
+      display: flex;
+      justify-content: center;
+      background: #fff;
+    }
+
+    .id-badge .id-photo {
+      width: 44mm;
+      height: 56mm;
+      object-fit: cover;
+      border: 1px solid #ccc;
+    }
+
+    .id-badge .id-photo-missing {
+      width: 44mm;
+      height: 56mm;
+      border: 1px dashed #ccc;
+      display: grid;
+      place-items: center;
+      color: #666;
+      font-size: 10pt;
+      text-align: center;
+    }
+
+    /* ตราประทับสีน้ำเงิน */
+    .id-badge .id-stamp {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-8deg);
+      width: 28mm;
+      height: 28mm;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    .id-badge .id-info {
+      padding: 0;
+      border-top: 1px solid #1e40af;
+    }
+
+    .id-badge .id-row {
+      display: grid;
+      grid-template-columns: 22mm 1fr;
+      border-bottom: 1px solid #ddd;
+      font-size: 11pt;
+    }
+
+    .id-badge .id-row:last-child {
+      border-bottom: 0;
+    }
+
+    .id-badge .id-row b {
+      padding: 4px 6px;
+      font-weight: 600;
+      background: #fafafa;
+      border-right: 1px solid #ddd;
+    }
+
+    .id-badge .id-row span {
+      padding: 4px 6px;
+      font-weight: 700;
+    }
+
+    /* ===== PRINT MODES ===== */
+    /* โหมดบัตรพนักงาน (เปิดเมื่อมี class print-badge บน body) */
     @media print {
       @page { size: A4; margin: 14mm; }
       body {
@@ -673,6 +782,52 @@
       .field b { font-size: 10pt; }
       .field span { font-size: 13pt; }
       .badge { display: none; }
+    }
+
+    /* โหมดพิมพ์บัตร: ซ่อนทุกอย่าง โชว์แต่ id-badge */
+    body.print-badge .topbar,
+    body.print-badge .hero,
+    body.print-badge .search,
+    body.print-badge .matches,
+    body.print-badge .footer,
+    body.print-badge .result .card,
+    body.print-badge .result .empty,
+    body.print-badge .result .not-found {
+      display: none !important;
+    }
+
+    body.print-badge {
+      background: #fff !important;
+    }
+
+    body.print-badge::before,
+    body.print-badge::after { display: none !important; }
+
+    body.print-badge main {
+      padding: 8mm;
+      width: 100%;
+    }
+
+    body.print-badge .result {
+      background: #fff;
+      border: 0;
+      box-shadow: none;
+      padding: 0;
+      backdrop-filter: none;
+      min-height: auto;
+    }
+
+    body.print-badge .result::before { display: none; }
+
+    body.print-badge .id-badge {
+      display: block !important;
+      margin: 0 auto;
+    }
+
+    @media print {
+      body.print-badge .id-badge {
+        display: block !important;
+      }
     }
   </style>
 </head>
@@ -829,6 +984,52 @@
       result.innerHTML = `<div class="empty"><div class="empty-icon">${icon}</div><div>${message}</div></div>`;
     }
 
+    function buildBadge(record) {
+      const photoSrc = imageCandidates(record.code);
+      return `
+        <div class="id-badge" id="idBadge">
+          <div class="id-header">
+            <div class="id-logo">
+              <svg class="id-logo-mark" viewBox="0 0 100 100"><use href="#holly-logo"/></svg>
+              <span class="id-logo-text">HOLLY</span>
+            </div>
+            <div class="id-tagline">ບໍລິສັດຮັບມາໜຸເຝິກເຈີຮີ່ງ ເອັສ.ອີ.ເອ ຈຳກັດຜູ້ດຽວ</div>
+          </div>
+          <div class="id-photo-wrap">
+            <img class="id-photo" src="${photoSrc[0]}" alt="${record.code}"
+                 onerror="this.onerror=null; this.src='${photoSrc[1]}'; this.dataset.fallback='1';
+                          if(this.dataset.tried){this.style.display='none'; this.insertAdjacentHTML('afterend','<div class=\\'id-photo-missing\\'>📷<br>ไม่มีรูป</div>');}
+                          this.dataset.tried='1';">
+            <!-- ตราประทับ SVG -->
+            <svg class="id-stamp" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <path id="stampTop" d="M 50,50 m -40,0 a 40,40 0 0,1 80,0" fill="none"/>
+                <path id="stampBot" d="M 50,50 m -38,0 a 38,38 0 0,0 76,0" fill="none"/>
+              </defs>
+              <polygon points="50,8 71,16 88,30 92,50 88,70 71,84 50,92 29,84 12,70 8,50 12,30 29,16"
+                       fill="none" stroke="#1e40af" stroke-width="2"/>
+              <circle cx="50" cy="50" r="35" fill="none" stroke="#1e40af" stroke-width="1"/>
+              <text font-family="serif" font-size="8" fill="#1e40af" font-weight="bold">
+                <textPath href="#stampTop" startOffset="50%" text-anchor="middle">ບໍລິສັດ</textPath>
+              </text>
+              <text x="50" y="42" text-anchor="middle" font-family="serif" font-size="6" fill="#1e40af" font-weight="bold">ຮັບມາໜຸເຝິກເຈີຮີ່ງ</text>
+              <text x="50" y="52" text-anchor="middle" font-family="serif" font-size="6" fill="#1e40af" font-weight="bold">ເອັສ.ອີ.ເອ ຈຳກັດຜູ້ດຽວ</text>
+              <text x="50" y="60" text-anchor="middle" font-family="serif" font-size="5" fill="#1e40af">HOLLY Manufacturing</text>
+              <text x="50" y="68" text-anchor="middle" font-family="serif" font-size="5" fill="#1e40af">S.E.A Sole Co.,Ltd</text>
+              <text x="20" y="50" text-anchor="middle" font-family="serif" font-size="14" fill="#1e40af">★</text>
+              <text x="80" y="50" text-anchor="middle" font-family="serif" font-size="14" fill="#1e40af">★</text>
+            </svg>
+          </div>
+          <div class="id-info">
+            <div class="id-row"><b>ຊື່</b><span>${record.name || "-"}</span></div>
+            <div class="id-row"><b>ລະຫັດ</b><span>${record.code}</span></div>
+            <div class="id-row"><b>ຕຳແໜ່ງ</b><span>${record.position || "-"}</span></div>
+            <div class="id-row"><b>ວັນທີ່ເຂົ້າວຽກ</b><span>${record.startDate || "-"}</span></div>
+          </div>
+        </div>
+      `;
+    }
+
     function showRecord(record) {
       result.innerHTML = "";
       const card = document.createElement("div");
@@ -846,17 +1047,35 @@
           <div class="field"><b>แผนก</b><span>${record.department || "-"}</span></div>
         </div>
         <div class="print-tools">
+          <button class="btn btn-primary" type="button" id="badgeButton">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 18c1-2 3-3 5-3s4 1 5 3"/></svg>
+            บันทึกบัตรพนักงาน PDF
+          </button>
           <button class="btn btn-dark" type="button" id="printButton">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            พิมพ์ A4 / บันทึก PDF
+            พิมพ์เต็มหน้า A4
           </button>
         </div>
       `;
       card.appendChild(info);
       result.appendChild(card);
 
+      // เพิ่มบัตรพนักงานเล็ก (ซ่อนไว้ จะโชว์ตอนพิมพ์บัตร)
+      const badgeWrap = document.createElement("div");
+      badgeWrap.innerHTML = buildBadge(record);
+      result.appendChild(badgeWrap.firstElementChild);
+
       document.querySelector("#printButton").addEventListener("click", () => {
+        document.body.classList.remove("print-badge");
         window.print();
+      });
+
+      document.querySelector("#badgeButton").addEventListener("click", () => {
+        document.body.classList.add("print-badge");
+        setTimeout(() => {
+          window.print();
+          setTimeout(() => document.body.classList.remove("print-badge"), 500);
+        }, 100);
       });
     }
 
